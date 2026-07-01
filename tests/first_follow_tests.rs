@@ -51,7 +51,7 @@ fn first_of_sequence_uses_consistent_nullable_contract() {
         Symbol::NonTerminal("ExprP".to_string()),
         Symbol::Terminal("id".to_string()),
     ];
-    assert_eq!(first_of_sequence(&sequence, &first), (set_of(&["+", "id"]), true));
+    assert_eq!(first_of_sequence(&sequence, &first), (set_of(&["+", "id"]), false));
 }
 
 #[test]

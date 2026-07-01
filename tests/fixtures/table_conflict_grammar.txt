@@ -1,0 +1,9 @@
+%start S
+%token a b c
+%%
+S -> a A | a B
+A -> b
+B -> c
+%%
+a b
+a c

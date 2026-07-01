@@ -46,3 +46,12 @@ pub struct ParseResult {
     pub steps: Vec<ParseStep>,
     pub error_message: Option<String>,
 }
+
+#[derive(Debug, Clone)]
+pub struct AnalysisReport {
+    pub grammar: Grammar,
+    pub first_sets: BTreeMap<String, BTreeSet<String>>,
+    pub follow_sets: BTreeMap<String, BTreeSet<String>>,
+    pub table_entries: BTreeMap<(String, String), usize>,
+    pub parse_results: Vec<ParseResult>,
+}

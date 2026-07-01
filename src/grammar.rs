@@ -33,10 +33,10 @@ pub struct ProblemInput {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParseStep {
     pub step: usize,
-    pub stack: String,
-    pub remaining_input: String,
+    pub stack: Vec<String>,
+    pub remaining_input: Vec<String>,
     pub action: String,
-    pub error: Option<String>,
+    pub error: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -31,7 +31,10 @@ fn analyze_expression_inputs_accepts_first_input() {
     assert_eq!(result.input, problem.inputs[0]);
     assert!(result.error_message.is_none());
     assert!(!result.steps.is_empty());
-    assert_eq!(result.steps.first().expect("first step").stack, "$ Expr");
+    assert_eq!(
+        result.steps.first().expect("first step").stack,
+        vec!["$".to_string(), "Expr".to_string()]
+    );
     assert_eq!(
         result.steps.last().expect("last step").action,
         "accept"
@@ -51,12 +54,7 @@ fn analyze_expression_inputs_rejects_third_input_with_error_message() {
 
     assert!(!result.accepted);
     assert!(result.error_message.is_some());
-    assert!(result
-        .steps
-        .last()
-        .expect("error step")
-        .error
-        .is_some());
+    assert!(result.steps.last().expect("error step").error);
 }
 
 #[test]

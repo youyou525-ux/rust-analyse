@@ -13,8 +13,8 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
     let mut step_index = 1;
 
     loop {
-        let stack_snapshot = format_stack(&stack);
-        let input_snapshot = remaining_input.join(" ");
+        let stack_snapshot = snapshot_stack(&stack);
+        let input_snapshot = remaining_input.clone();
         let Some(top) = stack.pop() else {
             let message = "分析栈意外为空".to_string();
             record_step(
@@ -23,7 +23,7 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
                 stack_snapshot,
                 input_snapshot,
                 "error".to_string(),
-                Some(message.clone()),
+                true,
             );
             return ParseResult {
                 input: input.to_vec(),
@@ -49,20 +49,22 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
                         stack_snapshot,
                         input_snapshot,
                         action,
-                        None,
+                        false,
                     );
                 } else {
                     let message = format!(
                         "终结符不匹配: 期待 {expected}，实际 {lookahead}"
                     );
-                    let action = format!("error: expected {expected}");
+                    let action = format!(
+                        "error: expected {expected}, found {lookahead}"
+                    );
                     record_step(
                         &mut steps,
                         step_index,
                         stack_snapshot,
                         input_snapshot,
                         action,
-                        Some(message.clone()),
+                        true,
                     );
                     return ParseResult {
                         input: input.to_vec(),
@@ -80,7 +82,7 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
                         stack_snapshot,
                         input_snapshot,
                         "accept".to_string(),
-                        None,
+                        false,
                     );
                     return ParseResult {
                         input: input.to_vec(),
@@ -96,8 +98,8 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
                     step_index,
                     stack_snapshot,
                     input_snapshot,
-                    "error: unexpected trailing input".to_string(),
-                    Some(message.clone()),
+                    format!("error: unexpected trailing input {lookahead}"),
+                    true,
                 );
                 return ParseResult {
                     input: input.to_vec(),
@@ -122,7 +124,7 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
                         stack_snapshot,
                         input_snapshot,
                         action,
-                        Some(message.clone()),
+                        true,
                     );
                     return ParseResult {
                         input: input.to_vec(),
@@ -157,7 +159,7 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
                     stack_snapshot,
                     input_snapshot,
                     action,
-                    None,
+                    false,
                 );
             }
             Symbol::Epsilon => {
@@ -167,7 +169,7 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
                     stack_snapshot,
                     input_snapshot,
                     "skip ε".to_string(),
-                    None,
+                    false,
                 );
             }
         }
@@ -179,10 +181,10 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
 fn record_step(
     steps: &mut Vec<ParseStep>,
     step: usize,
-    stack: String,
-    remaining_input: String,
+    stack: Vec<String>,
+    remaining_input: Vec<String>,
     action: String,
-    error: Option<String>,
+    error: bool,
 ) {
     steps.push(ParseStep {
         step,
@@ -193,9 +195,8 @@ fn record_step(
     });
 }
 
-fn format_stack(stack: &[Symbol]) -> String {
-    let ordered = stack.iter().rev().map(format_symbol).collect::<Vec<_>>();
-    ordered.join(" ")
+fn snapshot_stack(stack: &[Symbol]) -> Vec<String> {
+    stack.iter().rev().map(format_symbol).collect()
 }
 
 fn format_symbols(symbols: &[Symbol]) -> String {

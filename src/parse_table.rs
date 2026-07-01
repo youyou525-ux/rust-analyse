@@ -16,11 +16,17 @@ pub struct TableConflict {
     pub new_production: usize,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ParseTableError {
+    Conflict(TableConflict),
+    MissingFollowSet { non_terminal: String },
+}
+
 pub fn build_parse_table(
     grammar: &Grammar,
     first_sets: &FirstSets,
     follow_sets: &FollowSets,
-) -> Result<ParseTable, TableConflict> {
+) -> Result<ParseTable, ParseTableError> {
     let mut table = ParseTable {
         entries: BTreeMap::new(),
     };
@@ -33,9 +39,11 @@ pub fn build_parse_table(
         }
 
         if nullable {
-            let follow = follow_sets
-                .get(&production.left)
-                .unwrap_or_else(|| panic!("missing FOLLOW set for non-terminal: {}", production.left));
+            let follow = follow_sets.get(&production.left).ok_or_else(|| {
+                ParseTableError::MissingFollowSet {
+                    non_terminal: production.left.clone(),
+                }
+            })?;
             for terminal in follow {
                 insert_entry(&mut table, &production.left, terminal, production.id)?;
             }
@@ -50,17 +58,17 @@ fn insert_entry(
     non_terminal: &str,
     terminal: &str,
     production_id: usize,
-) -> Result<(), TableConflict> {
+) -> Result<(), ParseTableError> {
     let key = (non_terminal.to_string(), terminal.to_string());
 
     if let Some(existing_production) = table.entries.get(&key) {
         if *existing_production != production_id {
-            return Err(TableConflict {
+            return Err(ParseTableError::Conflict(TableConflict {
                 non_terminal: non_terminal.to_string(),
                 terminal: terminal.to_string(),
                 existing_production: *existing_production,
                 new_production: production_id,
-            });
+            }));
         }
 
         return Ok(());

@@ -1,0 +1,8 @@
+%start Missing
+%token a b
+%%
+S -> a A | a B
+A -> b
+B -> ε
+%%
+a b

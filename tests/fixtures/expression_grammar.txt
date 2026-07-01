@@ -1,0 +1,12 @@
+%start Expr
+%token id + * ( )
+%%
+Expr -> Term ExprP
+ExprP -> + Term ExprP | ε
+Term -> Factor TermP
+TermP -> * Factor TermP | ε
+Factor -> ( Expr ) | id
+%%
+id + id * id
+( id + id ) * id
+id + + id

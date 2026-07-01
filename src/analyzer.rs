@@ -134,13 +134,31 @@ pub fn analyze_input(grammar: &Grammar, table: &ParseTable, input: &[String]) ->
                     };
                 };
 
-                let production = grammar
+                let Some(production) = grammar
                     .productions
                     .iter()
                     .find(|production| production.id == production_id)
-                    .unwrap_or_else(|| {
-                        panic!("production id from parse table must exist: {production_id}")
-                    });
+                else {
+                    let message =
+                        format!("分析表中的产生式不存在: {production_id}");
+                    let action = format!(
+                        "error: missing production {production_id} for {non_terminal} with {lookahead}"
+                    );
+                    record_step(
+                        &mut steps,
+                        step_index,
+                        stack_snapshot,
+                        input_snapshot,
+                        action,
+                        true,
+                    );
+                    return ParseResult {
+                        input: input.to_vec(),
+                        accepted: false,
+                        steps,
+                        error_message: Some(message),
+                    };
+                };
 
                 for symbol in production.right.iter().rev() {
                     if !matches!(symbol, Symbol::Epsilon) {

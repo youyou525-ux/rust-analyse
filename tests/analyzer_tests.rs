@@ -14,7 +14,8 @@ mod parse_table;
 mod analyzer;
 
 use analyzer::analyze_input;
-use parse_table::build_parse_table;
+use parse_table::{build_parse_table, ParseTable};
+use std::collections::BTreeMap;
 
 #[test]
 fn analyze_expression_inputs_accepts_first_input() {
@@ -70,4 +71,23 @@ fn analyze_epsilon_grammar_accepts_repeated_a_input() {
 
     assert!(result.accepted);
     assert!(result.steps.iter().any(|step| step.action.contains("A -> ε")));
+}
+
+#[test]
+fn analyze_input_rejects_when_parse_table_references_missing_production() {
+    let problem = load_problem(Path::new("tests/fixtures/expression_grammar.txt"))
+        .expect("load fixture");
+    let table = ParseTable {
+        entries: BTreeMap::from([(("Expr".to_string(), "id".to_string()), 999usize)]),
+    };
+
+    let result = analyze_input(&problem.grammar, &table, &problem.inputs[0]);
+
+    assert!(!result.accepted);
+    assert!(result.error_message.is_some());
+    assert_eq!(
+        result.error_message.as_deref(),
+        Some("分析表中的产生式不存在: 999")
+    );
+    assert!(result.steps.last().expect("error step").error);
 }

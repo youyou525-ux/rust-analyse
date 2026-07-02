@@ -110,7 +110,7 @@ pub fn first_of_sequence(symbols: &[Symbol], first_sets: &FirstSets) -> (BTreeSe
                 let nested_first = first_sets
                     .get(name)
                     .unwrap_or_else(|| panic!("missing FIRST set for non-terminal: {name}"));
-                for entry in &nested_first {
+                for entry in nested_first {
                     if entry != "ε" {
                         first.insert(entry.clone());
                     }

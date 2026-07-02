@@ -46,9 +46,15 @@ fn cli_generates_report_for_valid_fixture() {
 
     let report = fs::read_to_string(report_path).expect("read report");
     assert!(report.contains("# LL(1) 分析报告"));
+    assert!(report.contains("符号说明"));
     assert!(report.contains("FIRST 集"));
     assert!(report.contains("Expr -> Term ExprP"));
     assert!(report.contains("M[Expr, id]"));
+    assert!(report.contains("$：输入结束符"));
+    assert!(report.contains("Expr：表达式（expression）"));
+    assert!(report.contains("ExprP：表达式后续部分"));
+    assert!(report.contains("ε：空串"));
+    assert!(report.contains("id：终结符 id"));
 }
 
 fn unique_output_dir(label: &str) -> PathBuf {

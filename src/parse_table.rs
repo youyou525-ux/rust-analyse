@@ -43,8 +43,8 @@ pub fn build_parse_table(
     for production in &grammar.productions {
         let (sequence_first, nullable) = first_of_sequence(&production.right, first_sets);
 
-        for terminal in sequence_first {
-            insert_entry(&mut table, &production.left, &terminal, production.id)?;
+        for terminal in sequence_first.iter() {
+            insert_entry(&mut table, &production.left, terminal, production.id)?;
         }
 
         if nullable {

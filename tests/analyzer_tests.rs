@@ -7,6 +7,10 @@ pub mod grammar {
     pub use grammar_analyse::grammar::*;
 }
 
+pub mod first_follow {
+    pub use grammar_analyse::first_follow::*;
+}
+
 #[path = "../src/parse_table.rs"]
 mod parse_table;
 
@@ -34,7 +38,7 @@ fn analyze_expression_inputs_accepts_first_input() {
     assert!(!result.steps.is_empty());
     assert_eq!(
         result.steps.first().expect("first step").stack,
-        vec!["$".to_string(), "Expr".to_string()]
+        vec!["Expr".to_string(), "$".to_string()]
     );
     assert_eq!(
         result.steps.last().expect("last step").action,

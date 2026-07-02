@@ -29,7 +29,7 @@ fn run() -> Result<(), String> {
     let output_dir = args
         .next()
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("output"));
+        .unwrap_or_else(|| PathBuf::from("export"));
 
     let problem = load_problem(Path::new(&input_path))?;
     let first_sets = compute_first_sets(&problem.grammar);
